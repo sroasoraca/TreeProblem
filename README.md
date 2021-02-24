@@ -1,4 +1,4 @@
 # TreeProblem
 
-<Open branch TreeProblem>
+Open branch TreeProblem
 
