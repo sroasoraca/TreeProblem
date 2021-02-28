@@ -23,7 +23,9 @@ public class Main {
         Tree A_problem = new Tree();
         
         A_problem.inputData();
-                
+        
+        
+        
         System.out.println("Fin de la ejecucion");
     }
     

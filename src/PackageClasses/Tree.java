@@ -17,28 +17,9 @@ public class Tree {
 
     Node root;
 
-    private Node addRecursive(Node current, int value) {
-        if (current == null) {
-            return new Node(value);
-        }
-
-        if (value < current.value) {
-            current.left = addRecursive(current.left, value);
-        } else if (value > current.value) {
-            current.right = addRecursive(current.right, value);
-        } else {
-            // value already exists
-            return current;
-        }
-
-        return current;
-    }
-
-    public void add(int value) {
-        root = addRecursive(root, value);
-    }
-
-    public void inputData() {
+    public Node inputData() {
+        boolean existsU;
+        boolean existsV;
 
         Scanner input = new Scanner(System.in);
         String TipoConsulta;
@@ -60,21 +41,43 @@ public class Tree {
 
                 System.out.println("Ingrese el comando que desea ejecutar");
                 TipoConsulta = input.nextLine();
+
+                String inputArray[] = Split(TipoConsulta);
                 
-                String tipoConsultaArray[] = Split(TipoConsulta);
-
-                switch (tipoConsultaArray[0]) {
+                switch (inputArray[0]) {
                     case "agregar":
-                        //Agrega el nodo
+                        //add the node
 
-                        add(Integer.parseInt(tipoConsultaArray[1]));
+                        add(Integer.parseInt(inputArray[1]));
 
                         break;
                     case "distancia":
-                        //Mide la distancia entre dos nodos
+                        //calculate the distance between two nodes
+                        existsU = containsNode(Integer.parseInt(inputArray[1]));
+                        existsV = containsNode(Integer.parseInt(inputArray[2]));
+
+                        System.out.println(inputArray[1] + " " + inputArray[2] + " " + root.value);
+
+                        if (existsU && existsV) {
+                            int ancestro = Ancestor(root, Integer.parseInt(inputArray[1]), Integer.parseInt(inputArray[2]));
+                            int distance = distance(root, Integer.parseInt(inputArray[1]), Integer.parseInt(inputArray[2]), ancestro);
+                            System.out.println("distancia : " + distance);
+                        } else {
+                            System.out.println("-1");
+                        }
                         break;
                     case "ancestro":
-                        //Calcula el ancestro
+                        //calculate the ancestor
+                        existsU = containsNode(Integer.parseInt(inputArray[1]));
+                        existsV = containsNode(Integer.parseInt(inputArray[2]));
+                        
+                        if (existsU && existsV) {
+                            int ancestor = Ancestor(root, Integer.parseInt(inputArray[1]), Integer.parseInt(inputArray[2]));
+                            System.out.println("ancestro : " + ancestor);
+                        } else {
+                            System.out.println("-1");
+                        }
+
                         break;
                     default:
                         System.out.println("Entrada no valida");
@@ -84,12 +87,110 @@ public class Tree {
             }
 
         }
+
+        return root;
     }
 
     public String[] Split(String TipoConsulta) {
 
         String tipoConsultaArray[] = TipoConsulta.split(" ");
         return tipoConsultaArray;
+    }
+
+    private Node addRecursive(Node current, int value) {
+        if (current == null) {
+            return new Node(value);
+        }
+
+        if (value < current.value) {
+            current.left = addRecursive(current.left, value);
+        } else if (value > current.value) {
+            current.right = addRecursive(current.right, value);
+        } else {
+            // value already exists
+            return current;
+        }
+
+        return current;
+    }
+
+    public void add(int value) {
+        root = addRecursive(root, value);
+    }
+
+    public int distance(Node tree, int u, int v, int ancestor) {
+        int distance = 0;
+
+        while (tree.value != ancestor && tree != null) {
+            if (ancestor > tree.value) {
+                return distance(tree.right, u, v, ancestor);
+            } else {
+                return distance(tree.left, u, v, ancestor);
+            }
+        }
+
+        int uNodes = containsNodeRecursive(tree, u, distance);
+        int vNodes = containsNodeRecursive(tree, v, distance);
+        distance = uNodes + vNodes;
+
+        return distance;
+    }
+
+    public int Ancestor(Node tree, int u, int v) {
+        int ancestor = 0;
+
+        ancestor = lookUpAncestor(tree, u, v, tree.value);
+
+        return ancestor;
+    }
+
+    public int lookUpAncestor(Node tree, int u, int v, int value) {
+        value = tree.value;
+        
+        if (u > tree.value && v > tree.value) {
+            value = lookUpAncestor(tree.right, u, v, value);
+        } else if (u < tree.value && v < tree.value) {
+            value = lookUpAncestor(tree.left, u, v, value);
+        } else {
+            return value;
+        }
+
+        return value;
+
+    }
+
+    public boolean containsNode(int value) {
+        return containsNodeRecursive(root, value);
+    }
+
+    private boolean containsNodeRecursive(Node current, int value) {
+        if (current == null) {
+            return false;
+        }
+        if (value == current.value) {
+            return true;
+        }
+        return value < current.value
+                ? containsNodeRecursive(current.left, value)
+                : containsNodeRecursive(current.right, value);
+    }
+
+    private int containsNodeRecursive(Node current, int value, int count) {
+                
+        if (current == null) {
+            return count;
+        }
+        if (value < current.value) {
+            count++;
+            count = containsNodeRecursive(current.left, value, count);
+            return count;
+        } else if (value > current.value){
+            count++;
+            count = containsNodeRecursive(current.right, value, count);
+            return count;
+        }
+
+        return count;
     }
 
 }
